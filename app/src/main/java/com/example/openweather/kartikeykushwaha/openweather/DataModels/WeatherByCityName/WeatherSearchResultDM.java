@@ -12,7 +12,7 @@ import com.google.gson.annotations.SerializedName;
 
 
 @Generated("org.jsonschema2pojo")
-public class WeatherByCityNameDM {
+public class WeatherSearchResultDM {
 
     @SerializedName("coord")
     @Expose

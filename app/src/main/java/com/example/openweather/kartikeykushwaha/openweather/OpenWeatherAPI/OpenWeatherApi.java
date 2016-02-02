@@ -1,6 +1,6 @@
 package com.example.openweather.kartikeykushwaha.openweather.OpenWeatherAPI;
 
-import com.example.openweather.kartikeykushwaha.openweather.DataModels.WeatherByCityName.WeatherByCityNameDM;
+import com.example.openweather.kartikeykushwaha.openweather.DataModels.WeatherByCityName.WeatherSearchResultDM;
 import com.squareup.okhttp.HttpUrl;
 import com.squareup.okhttp.Interceptor;
 import com.squareup.okhttp.OkHttpClient;
@@ -63,8 +63,13 @@ public class OpenWeatherApi {
     public interface OpenWeatherCurrentDataApiInterface {
 
         @GET("weather")
-        Observable<WeatherByCityNameDM> getWeatherByCityName(
+        Observable<WeatherSearchResultDM> getWeatherByCityName(
                 @Query("q") String cityName);
+
+        @GET("weather")
+        Observable<WeatherSearchResultDM> getWeatherByCordinates(
+                @Query("latitude") String latitude,
+                @Query("longitude") String longitude);
     }
 
     private static class OpenWeatherApiKeyInsertionInterceptor implements Interceptor {
