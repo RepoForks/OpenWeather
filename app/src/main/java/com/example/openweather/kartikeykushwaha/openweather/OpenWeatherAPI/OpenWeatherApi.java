@@ -1,20 +1,20 @@
 package com.example.openweather.kartikeykushwaha.openweather.OpenWeatherAPI;
 
 import com.example.openweather.kartikeykushwaha.openweather.DataModels.WeatherByCityName.WeatherSearchResultDM;
-import com.squareup.okhttp.HttpUrl;
-import com.squareup.okhttp.Interceptor;
-import com.squareup.okhttp.OkHttpClient;
-import com.squareup.okhttp.Request;
-import com.squareup.okhttp.Response;
-import com.squareup.okhttp.logging.HttpLoggingInterceptor;
 
 import java.io.IOException;
 
-import retrofit.GsonConverterFactory;
-import retrofit.Retrofit;
-import retrofit.RxJavaCallAdapterFactory;
-import retrofit.http.GET;
-import retrofit.http.Query;
+import okhttp3.HttpUrl;
+import okhttp3.Interceptor;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+import okhttp3.logging.HttpLoggingInterceptor;
+import retrofit2.Call;
+import retrofit2.GsonConverterFactory;
+import retrofit2.Retrofit;
+import retrofit2.http.GET;
+import retrofit2.http.Query;
 import rx.Observable;
 
 /**
@@ -40,16 +40,16 @@ public class OpenWeatherApi {
             OpenWeatherApiKeyInsertionInterceptor apiKeyInterceptor =
                     new OpenWeatherApiKeyInsertionInterceptor(openWeatherApiKey);
 
-            OkHttpClient okHttpClient = new OkHttpClient();
-            okHttpClient.interceptors().add(apiKeyInterceptor);                //Add the api key by default
-            okHttpClient.interceptors().add(loggingInterceptor);               //Enable logging
-
+            OkHttpClient okHttpClient = new OkHttpClient.Builder()
+                    .addInterceptor(loggingInterceptor)     //Add the api key by default
+                    .addInterceptor(apiKeyInterceptor)      //Enable logging
+                    .build();
 
             Retrofit retrofitClient = new Retrofit.Builder()
                     .baseUrl(baseUrl)
                     .client(okHttpClient)
                     .addConverterFactory(GsonConverterFactory.create())
-                    .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
+                    //.addCallAdapterFactory(RxJavaCallAdapterFactory.create())
                     .build();
 
             openWeatherCurrentDataApiInterface =
@@ -67,7 +67,7 @@ public class OpenWeatherApi {
                 @Query("q") String cityName);
 
         @GET("weather")
-        Observable<WeatherSearchResultDM> getWeatherByCordinates(
+        Call<WeatherSearchResultDM> getWeatherByCordinates(
                 @Query("latitude") String latitude,
                 @Query("longitude") String longitude);
     }
@@ -83,7 +83,7 @@ public class OpenWeatherApi {
         @Override
         public Response intercept(Chain chain) throws IOException {
             Request request = chain.request();
-            HttpUrl url = request.httpUrl().newBuilder().addQueryParameter("appid", mApiKey).build();
+            HttpUrl url = request.url().newBuilder().addQueryParameter("appid", mApiKey).build();
             request = request.newBuilder().url(url).build();
             return chain.proceed(request);
         }

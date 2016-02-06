@@ -3,10 +3,10 @@ package com.example.openweather.kartikeykushwaha.openweather;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.IntentSender;
+import android.os.Bundle;
 import android.os.PersistableBundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.util.Log;
 import android.widget.EditText;
 
@@ -24,8 +24,12 @@ import java.util.List;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 import rx.Observable;
 import rx.Subscriber;
+import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
@@ -61,13 +65,30 @@ public class MainActivity extends AppCompatActivity implements
                 && savedInstanceState.getBoolean(STATE_RESOLVING_ERROR, false);
 
         // Attempt to connect to google play services
-        if(googleLocationApiClient != null) {
+        if(googleLocationApiClient == null) {
             googleLocationApiClient = new GoogleApiClient.Builder(this)
                     .addConnectionCallbacks(this)
                     .addOnConnectionFailedListener(this)
                     .addApi(LocationServices.API)
                     .build();
         }
+
+        OpenWeatherApi.OpenWeatherCurrentDataApiInterface openWeatherCurrentDataApiInterface
+                = OpenWeatherApi.getOpenWeatherCurrentDataApiInterface();
+
+        Call<WeatherSearchResultDM> call = openWeatherCurrentDataApiInterface.getWeatherByCordinates("","");
+
+        call.enqueue(new Callback<WeatherSearchResultDM>() {
+            @Override
+            public void onResponse(Response<WeatherSearchResultDM> response) {
+
+            }
+
+            @Override
+            public void onFailure(Throwable t) {
+
+            }
+        });
     }
 
     @Override
@@ -95,7 +116,7 @@ public class MainActivity extends AppCompatActivity implements
                 = openWeatherCurrentDataApiInterface
                 .getWeatherByCityName(cityNameField.getText().toString());
 
-        WeatherByCityNameObservable
+        Subscription weatherByCityNameSubscription =  WeatherByCityNameObservable
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.newThread())
                 .subscribe(new Subscriber<WeatherSearchResultDM>() {
@@ -124,7 +145,7 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     public void onConnected(Bundle bundle) {
         /* Successfully Connected to Google Play services.
-        *1. Attempt to connect to last known location. */
+        *1. Attempt to get the last known location. */
 
     }
 
