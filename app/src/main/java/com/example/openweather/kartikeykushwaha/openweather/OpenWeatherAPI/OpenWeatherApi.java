@@ -13,6 +13,7 @@ import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Call;
 import retrofit2.GsonConverterFactory;
 import retrofit2.Retrofit;
+import retrofit2.RxJavaCallAdapterFactory;
 import retrofit2.http.GET;
 import retrofit2.http.Query;
 import rx.Observable;
@@ -49,7 +50,7 @@ public class OpenWeatherApi {
                     .baseUrl(baseUrl)
                     .client(okHttpClient)
                     .addConverterFactory(GsonConverterFactory.create())
-                    //.addCallAdapterFactory(RxJavaCallAdapterFactory.create())
+                    .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
                     .build();
 
             openWeatherCurrentDataApiInterface =
@@ -67,7 +68,7 @@ public class OpenWeatherApi {
                 @Query("q") String cityName);
 
         @GET("weather")
-        Call<WeatherSearchResultDM> getWeatherByCordinates(
+        Call<WeatherSearchResultDM> getWeatherByCoordinates(
                 @Query("latitude") String latitude,
                 @Query("longitude") String longitude);
     }

@@ -24,9 +24,6 @@ import java.util.List;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 import rx.Observable;
 import rx.Subscriber;
 import rx.Subscription;
@@ -72,23 +69,6 @@ public class MainActivity extends AppCompatActivity implements
                     .addApi(LocationServices.API)
                     .build();
         }
-
-        OpenWeatherApi.OpenWeatherCurrentDataApiInterface openWeatherCurrentDataApiInterface
-                = OpenWeatherApi.getOpenWeatherCurrentDataApiInterface();
-
-        Call<WeatherSearchResultDM> call = openWeatherCurrentDataApiInterface.getWeatherByCordinates("","");
-
-        call.enqueue(new Callback<WeatherSearchResultDM>() {
-            @Override
-            public void onResponse(Response<WeatherSearchResultDM> response) {
-
-            }
-
-            @Override
-            public void onFailure(Throwable t) {
-
-            }
-        });
     }
 
     @Override
