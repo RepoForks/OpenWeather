@@ -36,6 +36,7 @@ public class MainActivity extends AppCompatActivity implements
 
     @Bind(R.id.temp) TextView temperatureTextView;
 
+    // Tag to use for logging purposes
     private final String TAG = MainActivity.this.getClass().getSimpleName();
 
     private GoogleApiClient googleLocationApiClient;
@@ -147,10 +148,24 @@ public class MainActivity extends AppCompatActivity implements
 
                     @Override
                     public void onNext(WeatherSearchResultDM weatherSearchResultDM) {
+
+                        /*Get the temperature and convert in into degree celsius and display it*/
                         temperatureTextView
-                                .setText(String.valueOf(weatherSearchResultDM.getMain().getTemp()));
+                                .setText(String.valueOf(
+                                        convertKelvinToCelsius(
+                                                weatherSearchResultDM.getMain().getTemp())));
                     }
                 });
+    }
+
+    /**
+     * Method to convert temperature from kelvin to celsius
+     * @param kelvinDegrees temperature in kelvin
+     * @return temperature in celsius
+     */
+    private double convertKelvinToCelsius(double kelvinDegrees) {
+
+        return kelvinDegrees - 273.15;
     }
 
     @Override
