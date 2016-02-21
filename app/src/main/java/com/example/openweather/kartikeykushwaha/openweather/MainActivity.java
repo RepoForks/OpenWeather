@@ -14,10 +14,8 @@ import android.support.v4.app.DialogFragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-import android.widget.EditText;
+import android.widget.TextView;
 
-import com.example.openweather.kartikeykushwaha.openweather.DataModels.WeatherByCityName.Sys;
-import com.example.openweather.kartikeykushwaha.openweather.DataModels.WeatherByCityName.Weather;
 import com.example.openweather.kartikeykushwaha.openweather.DataModels.WeatherByCityName.WeatherSearchResultDM;
 import com.example.openweather.kartikeykushwaha.openweather.OpenWeatherAPI.OpenWeatherRestClient;
 import com.google.android.gms.common.ConnectionResult;
@@ -25,14 +23,10 @@ import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationServices;
 
-import java.util.List;
-
 import butterknife.Bind;
 import butterknife.ButterKnife;
-import butterknife.OnClick;
 import rx.Observable;
 import rx.Subscriber;
-import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
@@ -40,26 +34,25 @@ public class MainActivity extends AppCompatActivity implements
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener{
 
-    @Bind(R.id.city_input_field) EditText cityNameField;
+    @Bind(R.id.temp) TextView temperatureTextView;
 
     private final String TAG = MainActivity.this.getClass().getSimpleName();
 
     private GoogleApiClient googleLocationApiClient;
-    //Boolean to maintain whether an error is being resolved or not
+    // Boolean to maintain whether an error is being resolved or not
     private boolean resolvingGooglePlayConnectionError = false;
     // Request code to use when launching the resolution activity
     private static final int REQUEST_RESOLVE_ERROR = 1001;
     // Unique tag for the error dialog fragment
     private static final String DIALOG_ERROR = "dialog_error";
-    //Key used to maintain the boolean value of 'resolvingGooglePlayConnectionError'
+    // Key used to maintain the boolean value of 'resolvingGooglePlayConnectionError'
     private static final String STATE_RESOLVING_ERROR = "resolving_error";
 
-    //Request code for accessing location
+    // Request code for accessing location
     private static final int PERMISSION_GET_FINE_LOCATION = 1001;
-    // latitude and longitude required to get data by geo-location
-    private String latitude, longitude;
-    // Boolean to check whether the location has been provided or not
-    private boolean hasLocation = false;
+
+    // Interface to the REST client
+    OpenWeatherRestClient.OpenWeatherCurrentDataApiInterface openWeatherCurrentDataApiInterface;
 
     @Override
     public void onSaveInstanceState(Bundle outState, PersistableBundle outPersistentState) {
@@ -91,6 +84,9 @@ public class MainActivity extends AppCompatActivity implements
         super.onStart();
         if (!resolvingGooglePlayConnectionError)
             googleLocationApiClient.connect();
+
+        openWeatherCurrentDataApiInterface
+                = OpenWeatherRestClient.getOpenWeatherCurrentDataApiInterface();
     }
 
     @Override
@@ -99,19 +95,42 @@ public class MainActivity extends AppCompatActivity implements
         super.onStop();
     }
 
-    @OnClick(R.id.button_submit_city)
-    public void submitCityNameAction() {
+    /**
+     * Method to fetch the coordinated from google play services.
+     */
+    private void fetchLastLocationCoordinates() {
 
-        final String TAG = "WeatherByCityName";
+        /*
+        * Request for location permission.
+        * */
+        if(ContextCompat.checkSelfPermission(this,
+                Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            Location lastLocation = LocationServices.FusedLocationApi.getLastLocation(
+                    googleLocationApiClient);
 
-        OpenWeatherRestClient.OpenWeatherCurrentDataApiInterface openWeatherCurrentDataApiInterface
-                = OpenWeatherRestClient.getOpenWeatherCurrentDataApiInterface();
+            // Extract the coordinates and send API request to fetch the weather data
+            if(lastLocation != null) {
+                fetchWeatherByCoordinates(String.valueOf(lastLocation.getLatitude()),
+                        String.valueOf(lastLocation.getLongitude()));
+            }
+        } else {
 
-        Observable<WeatherSearchResultDM> WeatherByCityNameObservable
-                = openWeatherCurrentDataApiInterface
-                .getWeatherByCityName(cityNameField.getText().toString());
+            // Permission not available, request permission
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                    PERMISSION_GET_FINE_LOCATION);
+        }
+    }
 
-        Subscription weatherByCityNameSubscription =  WeatherByCityNameObservable
+    /**
+     * Method to make API call and get the weather data by coordinates
+     */
+    private void fetchWeatherByCoordinates(String latitude, String longitude) {
+
+        Observable<WeatherSearchResultDM> WeatherByCoordinatesObservable
+                = openWeatherCurrentDataApiInterface.getWeatherByCoordinates(latitude, longitude);
+
+        WeatherByCoordinatesObservable
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.newThread())
                 .subscribe(new Subscriber<WeatherSearchResultDM>() {
@@ -128,41 +147,10 @@ public class MainActivity extends AppCompatActivity implements
 
                     @Override
                     public void onNext(WeatherSearchResultDM weatherSearchResultDM) {
-                        Log.i(TAG, "Next called");
-
-                        Sys sysReply = weatherSearchResultDM.getSys();
-                        List<Weather> weathersReply = weatherSearchResultDM.getWeather();
-                        weathersReply.get(0).getMain();
+                        temperatureTextView
+                                .setText(String.valueOf(weatherSearchResultDM.getMain().getTemp()));
                     }
                 });
-    }
-
-    /**
-     * Method to fetch the coordinated from google play services.
-     */
-    private void fetchLastLocationCoordinates() {
-
-        Location lastLocation = null;
-
-        /*
-        * Request for location permission.
-        * */
-        if(ContextCompat.checkSelfPermission(this,
-                Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-            lastLocation = LocationServices.FusedLocationApi.getLastLocation(
-                    googleLocationApiClient);
-        } else {
-
-            ActivityCompat.requestPermissions(this,
-                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                    PERMISSION_GET_FINE_LOCATION);
-        }
-
-        if(lastLocation != null) {
-            hasLocation = true;
-            latitude = String.valueOf(lastLocation.getLatitude());
-            longitude = String.valueOf(lastLocation.getLongitude());
-        }
     }
 
     @Override
@@ -179,7 +167,7 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     @Override
-    public void onConnectionFailed(ConnectionResult connectionResult) {
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
 
         if(resolvingGooglePlayConnectionError) {
             // Already attempting a resolution
@@ -220,6 +208,7 @@ public class MainActivity extends AppCompatActivity implements
     public static class ErrorDialogFragment extends DialogFragment {
         public ErrorDialogFragment() { }
 
+        @NonNull
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
             // Get the error code and retrieve the appropriate dialog

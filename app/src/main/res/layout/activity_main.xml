@@ -9,18 +9,9 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="com.example.openweather.kartikeykushwaha.openweather.MainActivity">
 
-    <EditText
-        android:id="@+id/city_input_field"
+    <TextView
+        android:id="@+id/temp"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="City Name"/>
-
-    <Button
-        android:id="@+id/button_submit_city"
-        android:layout_width="wrap_content"
-        android:layout_below="@id/city_input_field"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true"
-        android:layout_height="wrap_content"
-        android:text="Fetch Weather"/>
+        android:layout_height="100dp"
+        android:layout_centerInParent="true"/>
 </RelativeLayout>

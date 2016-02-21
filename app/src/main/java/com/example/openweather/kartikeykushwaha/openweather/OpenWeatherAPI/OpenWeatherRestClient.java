@@ -10,7 +10,6 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.logging.HttpLoggingInterceptor;
-import retrofit2.Call;
 import retrofit2.GsonConverterFactory;
 import retrofit2.Retrofit;
 import retrofit2.RxJavaCallAdapterFactory;
@@ -68,9 +67,9 @@ public class OpenWeatherRestClient {
                 @Query("q") String cityName);
 
         @GET("weather")
-        Call<WeatherSearchResultDM> getWeatherByCoordinates(
-                @Query("latitude") String latitude,
-                @Query("longitude") String longitude);
+        Observable<WeatherSearchResultDM> getWeatherByCoordinates(
+                @Query("lat") String latitude,
+                @Query("lon") String longitude);
     }
 
     private static class OpenWeatherApiKeyInsertionInterceptor implements Interceptor {
