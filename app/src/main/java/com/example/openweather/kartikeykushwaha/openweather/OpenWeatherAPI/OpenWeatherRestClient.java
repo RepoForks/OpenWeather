@@ -21,7 +21,7 @@ import rx.Observable;
 /**
  * Created by kartikeykushwaha on 31/12/15.
  */
-public class OpenWeatherApi {
+public class OpenWeatherRestClient {
 
     private static final String openWeatherApiKey = "ab12e7324b24e56636efb32f2e3549b1";
 
