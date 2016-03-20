@@ -29,11 +29,11 @@ dependencies {
     compile 'com.android.support:design:23.1.1'
 
     //Retrofit
-    compile 'com.squareup.retrofit2:retrofit:2.0.0-beta3'
+    compile 'com.squareup.retrofit2:retrofit:2.0.0'
     //Retrofit - gson
-    compile 'com.squareup.retrofit2:converter-gson:2.0.0-beta3'
+    compile 'com.squareup.retrofit2:converter-gson:2.0.0'
     //Retrofit - rxJava
-    compile 'com.squareup.retrofit2:adapter-rxjava:2.0.0-beta3'
+    compile 'com.squareup.retrofit2:adapter-rxjava:2.0.0'
 
     //OkHttp
     compile 'com.squareup.okhttp3:okhttp:3.0.0-RC1'
