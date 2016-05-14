@@ -2,7 +2,7 @@
 
 This is an experimental project which uses an array of libraries for android for learning purposes.
 
-List libraries used - 
+List of libraries used - 
 
 1. Retrofit 2.0 (Beta)
 
